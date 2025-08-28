@@ -35,6 +35,9 @@ class SimpleODE:
             'x': parameters.get('x', 1.0),
             'y': parameters.get('y', 0.5)
         }
+        
+        # Set initial conditions
+        self.initial_conditions = np.array([self.parameters['x'], self.parameters['y']])
     
     def step(self, X: np.ndarray, t: float) -> np.ndarray:
         """
@@ -60,99 +63,132 @@ class SimpleODE:
         return np.array([dx_dt, dy_dt])
 
 
-class HeatedTank:
+class ChemicalReactor:
     """
-    Heated tank system from references.
+    Chemical reactor system with reaction A + 2B → 3C.
     
-    A tank with heating jacket where:
-    - Tv: Tank temperature
-    - Tj: Jacket temperature
+    A continuous stirred-tank reactor (CSTR) with three components:
+    - A, B: Reactants
+    - C: Product
     
-    Heat transfer occurs between tank and jacket.
+    The system tracks molar amounts (Na, Nb, Nc) which are the state variables.
     """
     
     def __init__(self, parameters: Dict[str, Any] = None):
         """
-        Initialize the heated tank system.
+        Initialize the chemical reactor system.
         
         Args:
             parameters: Dictionary with keys:
-                - 'Tv': Initial tank temperature (default: 350.0)
-                - 'Tj': Initial jacket temperature (default: 300.0)
-                - 'F': Flow rate (default: 5.0)
-                - 'Fj': Jacket flow rate (default: 2.0)
-                - 'T0': Feed temperature (default: 300.0)
-                - 'Tj0': Jacket feed temperature (default: 350.0)
-                - 'V': Tank volume (default: 100.0)
-                - 'Vj': Jacket volume (default: 10.0)
-                - 'rho': Density (default: 1000.0)
-                - 'rhoj': Jacket density (default: 1000.0)
-                - 'cp': Heat capacity (default: 4.18)
-                - 'cpj': Jacket heat capacity (default: 4.18)
-                - 'U': Heat transfer coefficient (default: 500.0)
-                - 'A': Heat transfer area (default: 2.0)
+                - 'Na': Initial moles of A (default: 0.0)
+                - 'Nb': Initial moles of B (default: 0.0)
+                - 'Nc': Initial moles of C (default: 0.0)
+                - 'vai': Volumetric flow rate of stream A (default: 0.0)
+                - 'vbi': Volumetric flow rate of stream B (default: 0.0)
+                - 'vci': Volumetric flow rate of stream C (default: 0.0)
+                - 'V': Reactor volume (default: 1.0)
+                - 'Cai': Inlet concentration of A (default: 1.0)
+                - 'Cbi': Inlet concentration of B (default: 1.0)
+                - 'Cci': Inlet concentration of C (default: 1.0)
+                - 'k': Reaction rate constant (default: 100.0)
         """
         if parameters is None:
             parameters = {}
         
         # Set default values
         self.parameters = {
-            'Tv': parameters.get('Tv', 350.0),
-            'Tj': parameters.get('Tj', 300.0),
-            'F': parameters.get('F', 5.0),
-            'Fj': parameters.get('Fj', 2.0),
-            'T0': parameters.get('T0', 300.0),
-            'Tj0': parameters.get('Tj0', 350.0),
-            'V': parameters.get('V', 100.0),
-            'Vj': parameters.get('Vj', 10.0),
-            'rho': parameters.get('rho', 1000.0),
-            'rhoj': parameters.get('rhoj', 1000.0),
-            'cp': parameters.get('cp', 4.18),
-            'cpj': parameters.get('cpj', 4.18),
-            'U': parameters.get('U', 500.0),
-            'A': parameters.get('A', 2.0)
+            'Na': parameters.get('Na', 0.0),
+            'Nb': parameters.get('Nb', 0.0),
+            'Nc': parameters.get('Nc', 0.0),
+            'vai': parameters.get('vai', 0.0),
+            'vbi': parameters.get('vbi', 0.0),
+            'vci': parameters.get('vci', 0.0),
+            'V': parameters.get('V', 1.0),
+            'Cai': parameters.get('Cai', 1.0),
+            'Cbi': parameters.get('Cbi', 1.0),
+            'Cci': parameters.get('Cci', 1.0),
+            'k': parameters.get('k', 100.0)
         }
+        
+        # Set initial conditions
+        self.initial_conditions = np.array([self.parameters['Na'], self.parameters['Nb'], self.parameters['Nc']])
     
-    def step(self, T: np.ndarray, t: float) -> np.ndarray:
+    def step(self, N: np.ndarray, t: float) -> np.ndarray:
         """
-        Compute temperature dynamics for tank and jacket.
+        Compute reactor dynamics: dN/dt for molar amounts.
         
         Args:
-            T: Temperature vector [Tv, Tj]
+            N: Molar amounts vector [Na, Nb, Nc]
             t: Current time (unused)
             
         Returns:
-            dT/dt: Temperature derivative vector
+            dN/dt: Molar amount derivatives [dNa/dt, dNb/dt, dNc/dt]
         """
-        # Extract parameters
-        F = self.parameters['F']
-        Fj = self.parameters['Fj']
-        T0 = self.parameters['T0']
-        Tj0 = self.parameters['Tj0']
-        V = self.parameters['V']
-        Vj = self.parameters['Vj']
-        rho = self.parameters['rho']
-        rhoj = self.parameters['rhoj']
-        cp = self.parameters['cp']
-        cpj = self.parameters['cpj']
-        U = self.parameters['U']
-        A = self.parameters['A']
-        
-        # Current temperatures
-        Tv = T[0]
-        Tj = T[1]
+        # Current molar amounts
+        Na, Nb, Nc = N[0], N[1], N[2]
         
         # Update parameters with current state
-        self.parameters['Tv'] = Tv
-        self.parameters['Tj'] = Tj
+        self.parameters['Na'] = Na
+        self.parameters['Nb'] = Nb
+        self.parameters['Nc'] = Nc
         
-        # Compute temperature derivatives
-        dTdt = np.zeros(2)
+        # Extract parameters
+        vai = self.parameters['vai']
+        vbi = self.parameters['vbi']
+        vci = self.parameters['vci']
+        V = self.parameters['V']
+        Cai = self.parameters['Cai']
+        Cbi = self.parameters['Cbi']
+        Cci = self.parameters['Cci']
+        k = self.parameters['k']
         
-        # Tank temperature derivative
-        dTdt[0] = (F * (T0 - Tv))/V + (U * A * (Tj - Tv))/(V * rho * cp)
+        # Calculate total volumetric flow rate
+        v = vai + vbi + vci
         
-        # Jacket temperature derivative  
-        dTdt[1] = (Fj * (Tj0 - Tj))/Vj - (U * A * (Tj - Tv))/(Vj * rhoj * cpj)
+        # Calculate reactor concentrations
+        Ca = Na / V if V > 0 else 0.0
+        Cb = Nb / V if V > 0 else 0.0
+        Cc = Nc / V if V > 0 else 0.0
         
-        return dTdt
+        # Calculate inlet molar flow rates
+        Fai = vai * Cai
+        Fbi = vbi * Cbi
+        Fci = vci * Cci
+        
+        # Calculate outlet molar flow rates
+        Fa = v * Ca
+        Fb = v * Cb
+        Fc = v * Cc
+        
+        # Calculate reaction rate: A + 2B -> 3C
+        # r = k * Ca * Cb^2
+        r = k * Ca * (Cb ** 2)
+        
+        # Calculate individual species reaction rates
+        ra = -r      # A is consumed (stoichiometry: -1)
+        rb = -2 * r  # B is consumed (stoichiometry: -2) 
+        rc = 3 * r   # C is produced (stoichiometry: +3)
+        
+        # Update additional parameters for monitoring
+        self.parameters['v'] = v
+        self.parameters['Ca'] = Ca
+        self.parameters['Cb'] = Cb
+        self.parameters['Cc'] = Cc
+        self.parameters['r'] = r
+        self.parameters['ra'] = ra
+        self.parameters['rb'] = rb
+        self.parameters['rc'] = rc
+        
+        # Calculate molar amount derivatives
+        dNdt = np.zeros(3)
+        
+        # dNa/dt = Fai - Fa + ra * V
+        dNdt[0] = Fai - Fa + ra * V
+        
+        # dNb/dt = Fbi - Fb + rb * V  
+        dNdt[1] = Fbi - Fb + rb * V
+        
+        # dNc/dt = Fci - Fc + rc * V
+        dNdt[2] = Fci - Fc + rc * V
+        
+        return dNdt
