@@ -18,7 +18,8 @@ class ODEEnvironment:
         max_steps: int = 1000,
         reward_function: Optional[Callable] = None,
         integration_method: str = 'RK45',
-        state_variables: Optional[List[str]] = None
+        state_variables: Optional[List[str]] = None,
+        action_variables: Optional[List[str]] = None
     ):
         """
         Initialize ODE environment.
@@ -27,16 +28,18 @@ class ODEEnvironment:
             model: ODE model with step(X, t) method
             time_step: Integration time step
             max_steps: Maximum steps per episode
-            reward_function: Function (obs, action, next_obs) -> reward
+            reward_function: Function (model_object) -> reward. Access state via model.parameters['var'].
             integration_method: Scipy integration method ('RK45', 'RK23', 'Radau', 'BDF', 'LSODA')
-            state_variables: List of parameter names to include in observations (default: None, uses current state)
+            state_variables: List of parameter names to include in observations (example: ['x', 'y'])
+            action_variables: List of parameter names that actions will modify (example: ['x', 'y'])
         """
         self.model = model
         self.time_step = time_step
         self.max_steps = max_steps
         self.integration_method = integration_method
-        self.reward_function = reward_function or (lambda obs, action, next_obs: 0.0)
+        self.reward_function = reward_function or (lambda model: 0.0)
         self.state_variables = state_variables
+        self.action_variables = action_variables
         
         # Get initial conditions from model
         self.initial_state = self.model.initial_conditions.copy()
@@ -60,6 +63,21 @@ class ODEEnvironment:
             # Return specified parameters from model
             return np.array([self.model.parameters[var] for var in self.state_variables])
     
+    def apply_action(self, action: np.ndarray) -> None:
+        """
+        Apply action to model parameters.
+        
+        Args:
+            action: Action vector with values to assign to action_variables
+        """
+        if self.action_variables is not None:
+            if len(action) != len(self.action_variables):
+                raise ValueError(f"Action length {len(action)} must match action_variables length {len(self.action_variables)}")
+            
+            # Update model parameters with action values
+            for i, var in enumerate(self.action_variables):
+                self.model.parameters[var] = action[i]
+    
     def reset(self) -> np.ndarray:
         """Reset to initial state."""
         self.state = self.initial_state.copy()
@@ -69,7 +87,8 @@ class ODEEnvironment:
     
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, Dict]:
         """Take one environment step."""
-        prev_obs = self.get_current_observation()
+        # Apply action to model parameters
+        self.apply_action(action)
         
         # Integrate ODE for one time step using scipy's solve_ivp
         # This solves: dX/dt = model.step(X, t) from time t to t+dt
@@ -92,8 +111,8 @@ class ODEEnvironment:
         # Get current observation
         next_obs = self.get_current_observation()
         
-        # Compute reward
-        reward = self.reward_function(prev_obs, action, next_obs)
+        # Compute reward using model state
+        reward = self.reward_function(self.model)
         
         # Check if done
         done = self.steps >= self.max_steps or np.any(np.abs(self.state) > 1e6)

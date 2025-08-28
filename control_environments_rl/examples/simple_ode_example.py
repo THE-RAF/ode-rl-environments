@@ -15,19 +15,19 @@ from control_environments_rl.src.utils.visualization import (
 )
 
 
-def custom_reward_function(obs, action, next_obs):
+def custom_reward_function(model):
     """
     Custom reward function: minimize distance from origin.
     
     Args:
-        obs: Previous state [x, y]
-        action: Action taken (unused in this example)
-        next_obs: Current state [x, y]
+        model: ODE model with current state in parameters
         
     Returns:
         Negative distance from origin (higher reward = closer to origin)
     """
-    distance = np.sqrt(np.sum(next_obs**2))
+    x = model.parameters['x']
+    y = model.parameters['y']
+    distance = np.sqrt(x**2 + y**2)
     return -distance
 
 
