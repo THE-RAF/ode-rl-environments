@@ -3,7 +3,7 @@ Chemical reactor example using the control-environments-rl framework.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from control_environments_rl.src.core.ode_models import ChemicalReactor
+from control_environments_rl.src.ode_models import ChemicalReactor
 from control_environments_rl.src.core.ode_environment import ODEEnvironment
 
 
