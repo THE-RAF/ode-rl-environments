@@ -18,7 +18,7 @@ class ODEEnvironment:
         max_steps: int = 1000,
         reward_function: Optional[Callable] = None,
         integration_method: str = 'RK45',
-        state_variables: Optional[List[str]] = None,
+        observation_variables: Optional[List[str]] = None,
         action_variables: Optional[List[str]] = None
     ):
         """
@@ -30,7 +30,7 @@ class ODEEnvironment:
             max_steps: Maximum steps per episode
             reward_function: Function (model_object) -> reward. Access state via model.parameters['var'].
             integration_method: Scipy integration method ('RK45', 'RK23', 'Radau', 'BDF', 'LSODA')
-            state_variables: List of parameter names to include in observations (example: ['x', 'y'])
+            observation_variables: List of parameter names to include in observations (example: ['x', 'y'])
             action_variables: List of parameter names that actions will modify (example: ['x', 'y'])
         """
         self.model = model
@@ -38,7 +38,7 @@ class ODEEnvironment:
         self.max_steps = max_steps
         self.integration_method = integration_method
         self.reward_function = reward_function or (lambda model: 0.0)
-        self.state_variables = state_variables
+        self.observation_variables = observation_variables
         self.action_variables = action_variables
         
         # Get initial conditions from model
@@ -48,20 +48,23 @@ class ODEEnvironment:
         self.state = None
         self.time = 0.0
         self.steps = 0
+        
+        # Parameter history tracking
+        self.model_parameter_history = {}
     
     def get_current_observation(self) -> np.ndarray:
         """
-        Get current observation based on state_variables configuration.
+        Get current observation based on observation_variables configuration.
         
         Returns:
             Current observation vector
         """
-        if self.state_variables is None:
+        if self.observation_variables is None:
             # Default: return the current integrated state
             return self.state.copy() if self.state is not None else self.initial_state.copy()
         else:
             # Return specified parameters from model
-            return np.array([self.model.parameters[var] for var in self.state_variables])
+            return np.array([self.model.parameters[var] for var in self.observation_variables])
     
     def apply_action(self, action: np.ndarray) -> None:
         """
@@ -83,6 +86,13 @@ class ODEEnvironment:
         self.state = self.initial_state.copy()
         self.time = 0.0
         self.steps = 0
+        
+        # Initialize parameter history tracking
+        self.model_parameter_history = {}
+        if hasattr(self.model, 'parameters') and self.model.parameters:
+            for param_name in self.model.parameters.keys():
+                self.model_parameter_history[param_name] = [self.model.parameters[param_name]]
+        
         return self.get_current_observation()
     
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, Dict]:
@@ -113,6 +123,12 @@ class ODEEnvironment:
         
         # Compute reward using model state
         reward = self.reward_function(self.model)
+        
+        # Record parameter values in history
+        if hasattr(self.model, 'parameters') and self.model.parameters:
+            for param_name, param_value in self.model.parameters.items():
+                if param_name in self.model_parameter_history:
+                    self.model_parameter_history[param_name].append(param_value)
         
         # Check if done
         done = self.steps >= self.max_steps or np.any(np.abs(self.state) > 1e6)
