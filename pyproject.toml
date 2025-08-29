@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ode-rl-environments"
+version = "1.0.0"
+description = "A clean, professional framework for transforming ODE systems into reinforcement learning environments"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Rafael"}
+]
+keywords = ["ode", "reinforcement-learning", "control-systems", "differential-equations", "scipy", "rl-environment"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research", 
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9", 
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+dependencies = [
+    "numpy>=1.20.0,<3.0.0",      # Stable API, avoid NumPy 3.x breaking changes
+    "scipy>=1.7.0,<2.0.0",       # ODE integration - block major version bumps
+    "matplotlib>=3.5.0,<4.0.0"   # Visualization - mature plotting API
+]
+requires-python = ">=3.8,<4.0"   # Python 3.8+ support, block Python 4.x when it comes
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0,<8.0",
+    "pytest-cov>=3.0,<5.0", 
+    "black>=22.0,<25.0",
+    "flake8>=4.0,<7.0"
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ode_rl_environments*"]

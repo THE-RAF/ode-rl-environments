@@ -1,0 +1,4 @@
+include README.md
+include pyproject.toml
+recursive-include ode_rl_environments *.py *.md
+recursive-include ode_rl_environments/examples *.py
