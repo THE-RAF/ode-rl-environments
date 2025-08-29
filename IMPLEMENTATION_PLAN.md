@@ -1,4 +1,4 @@
-# Implementation Plan for `control-environments-rl`
+# Implementation Plan for `ode-rl-environments`
 
 ## Core Concept
 Transform ODE systems into RL environments by:
@@ -10,12 +10,12 @@ Transform ODE systems into RL environments by:
 ## Architecture Overview
 
 ```
-control-environments-rl/
+ode-rl-environments/
 ├── pyproject.toml
 ├── README.md
 ├── LICENSE
 ├── MANIFEST.in
-├── control_environments_rl/
+├── ode_rl_environments/
 │   ├── __init__.py                    # Main API entry point
 │   ├── examples/
 │   │   ├── theoretical_2x2_example.py
@@ -35,8 +35,8 @@ control-environments-rl/
 Following the pattern of ultra-clean single-function interfaces:
 
 ```python
-from control_environments_rl import create_ode_environment
-from control_environments_rl.models import Theoretical2x2, HeatedTank
+from ode_rl_environments import create_ode_environment
+from ode_rl_environments.models import Theoretical2x2, HeatedTank
 
 # Usage with built-in models
 model = Theoretical2x2(parameters={'x0': 1, 'x1': 1, 'u0': 1, 'u1': 1})

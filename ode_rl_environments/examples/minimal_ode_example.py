@@ -3,7 +3,7 @@ Minimal SimpleODE example.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from control_environments_rl import ODEEnvironment, ode_models
+from ode_rl_environments import ODEEnvironment, ode_models
 
 # Create model and environment
 model = ode_models.SimpleODE()

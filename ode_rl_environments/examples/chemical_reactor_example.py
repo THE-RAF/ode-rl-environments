@@ -1,9 +1,9 @@
 """
-Chemical reactor example using the control-environments-rl framework.
+Chemical reactor example using the ode-rl-environments framework.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from control_environments_rl import ODEEnvironment, ode_models
+from ode_rl_environments import ODEEnvironment, ode_models
 
 
 def product_reward(model):

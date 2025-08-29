@@ -1,5 +1,5 @@
 """
-Control Environments RL - Transform ODEs into RL environments.
+ODE-RL Environments - Transform ODEs into RL environments.
 
 This package provides tools for converting ordinary differential equation (ODE) 
 systems into reinforcement learning environments, making it easy to apply RL 

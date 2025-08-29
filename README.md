@@ -1,4 +1,4 @@
-# Control Environments RL - ODE Systems as Reinforcement Learning Environments
+# ODE-RL Environments - ODE Systems as Reinforcement Learning Environments
 
 A clean, professional framework for transforming ordinary differential equation (ODE) systems into reinforcement learning environments, compatible with standard RL interfaces like OpenAI Gym.
 
@@ -14,8 +14,8 @@ A clean, professional framework for transforming ordinary differential equation 
 ## Quick Start
 
 ```python
-from control_environments_rl import create_ode_environment
-from control_environments_rl.models import Theoretical2x2
+from ode_rl_environments import create_ode_environment
+from ode_rl_environments.models import Theoretical2x2
 
 # Define a reward function for your control objective
 def reward_function(obs, action, next_obs):
@@ -61,7 +61,7 @@ print(f"Episode completed with total reward: {total_reward}")
 ### Theoretical 2x2 System
 Linear system with state feedback:
 ```python
-from control_environments_rl.models import Theoretical2x2
+from ode_rl_environments.models import Theoretical2x2
 
 model = Theoretical2x2(parameters={
     'x0': 1.0,   # Initial condition for state 1
@@ -79,7 +79,7 @@ System equations:
 ### Heated Tank System
 Non-linear tank temperature control:
 ```python
-from control_environments_rl.models import HeatedTank
+from ode_rl_environments.models import HeatedTank
 
 model = HeatedTank(parameters={
     'Tv': 350.0,    # Initial tank temperature
@@ -104,7 +104,7 @@ model = HeatedTank(parameters={
 Create your own ODE systems by inheriting from the base class:
 
 ```python
-from control_environments_rl.models import ODEModel
+from ode_rl_environments.models import ODEModel
 import numpy as np
 
 class MyCustomODE(ODEModel):
