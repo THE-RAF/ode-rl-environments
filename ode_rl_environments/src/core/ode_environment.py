@@ -2,6 +2,7 @@
 ODE-based reinforcement learning environment implementation.
 """
 import numpy as np
+from copy import deepcopy
 from typing import Dict, Callable, Optional, Tuple, List
 from scipy.integrate import solve_ivp
 
@@ -33,7 +34,8 @@ class ODEEnvironment:
             observation_variables: List of parameter names to include in observations (example: ['x', 'y'])
             action_variables: List of parameter names that actions will modify (example: ['x', 'y'])
         """
-        self.model = model
+        self.initial_model = model # Keep a copy of the initial model
+        self.model = deepcopy(model)
         self.time_step = time_step
         self.max_steps = max_steps
         self.integration_method = integration_method
@@ -83,6 +85,7 @@ class ODEEnvironment:
     
     def reset(self) -> np.ndarray:
         """Reset to initial state."""
+        self.model = deepcopy(self.initial_model) # Restore initial model
         self.state = self.initial_state.copy()
         self.time = 0.0
         self.steps = 0
