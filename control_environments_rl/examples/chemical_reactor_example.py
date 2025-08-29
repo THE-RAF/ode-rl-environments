@@ -3,8 +3,7 @@ Chemical reactor example using the control-environments-rl framework.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from control_environments_rl.src.ode_models import ChemicalReactor
-from control_environments_rl.src.core.ode_environment import ODEEnvironment
+from control_environments_rl import ODEEnvironment, ode_models
 
 
 def product_reward(model):
@@ -12,7 +11,7 @@ def product_reward(model):
     return model.parameters['Nc'] * 10
 
 # Create reactor and environment
-reactor = ChemicalReactor()
+reactor = ode_models.ChemicalReactor()
 env = ODEEnvironment(
     model=reactor,
     time_step=0.1,

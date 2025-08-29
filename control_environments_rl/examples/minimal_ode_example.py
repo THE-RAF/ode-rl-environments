@@ -3,11 +3,10 @@ Minimal SimpleODE example.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from control_environments_rl.src.ode_models import SimpleODE
-from control_environments_rl.src.core.ode_environment import ODEEnvironment
+from control_environments_rl import ODEEnvironment, ode_models
 
 # Create model and environment
-model = SimpleODE()
+model = ode_models.SimpleODE()
 env = ODEEnvironment(model=model, time_step=0.05, max_steps=30)
 
 # Run episode

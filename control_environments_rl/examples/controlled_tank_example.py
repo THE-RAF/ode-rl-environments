@@ -3,8 +3,7 @@ Controlled tank example with RL loop.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from control_environments_rl.src.ode_models import ControlledTank
-from control_environments_rl.src.core.ode_environment import ODEEnvironment
+from control_environments_rl import ODEEnvironment, ode_models
 
 
 def height_tracking_reward(model):
@@ -13,7 +12,7 @@ def height_tracking_reward(model):
     return -error**2
 
 # Create tank and environment
-tank = ControlledTank()
+tank = ode_models.ControlledTank()
 env = ODEEnvironment(
     model=tank, 
     time_step=0.5,
