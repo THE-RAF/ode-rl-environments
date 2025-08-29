@@ -9,6 +9,8 @@ from control_environments_rl import ODEEnvironment, ode_models
 model = ode_models.SimpleODE()
 env = ODEEnvironment(model=model, time_step=0.05, max_steps=30)
 
+# ============================================================================== #
+
 # Run episode
 obs = env.reset()
 rewards = []
@@ -18,6 +20,8 @@ for step in range(15):
     obs, reward, done, info = env.step(action)
     rewards.append(reward)
     if done: break
+
+# ============================================================================== #
 
 # Plot results
 times = np.arange(len(list(env.model_parameter_history.values())[0])) * 0.05

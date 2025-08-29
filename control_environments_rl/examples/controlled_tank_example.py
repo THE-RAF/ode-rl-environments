@@ -73,6 +73,8 @@ for step in range(100):
     rewards.append(reward)
     if done: break
 
+# ============================================================================== #
+
 # Plot results
 times = np.arange(len(list(env.model_parameter_history.values())[0])) * 0.1
 
