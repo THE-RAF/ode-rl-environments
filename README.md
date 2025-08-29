@@ -14,6 +14,8 @@ A clean, professional framework for transforming ordinary differential equation 
 
 ## Quick Start
 
+This example shows a chemical reactor where reactants A and B combine to form product C (A + 2B → 3C). The RL agent controls the inlet flow rates to maximize product formation.
+
 ```python
 from ode_rl_environments import ODEEnvironment, ode_models
 import numpy as np
@@ -28,8 +30,8 @@ env = ODEEnvironment(
     model=reactor,
     time_step=0.1,
     reward_function=product_reward,
-    observation_variables=['Na', 'Nb', 'Nc'],
-    action_variables=['vai', 'vbi', 'vci']
+    observation_variables=['Na', 'Nb', 'Nc'],  # Agent observes mole amounts
+    action_variables=['vai', 'vbi', 'vci']     # Agent controls flow rates
 )
 
 # Standard RL loop
@@ -48,7 +50,7 @@ plt.show()
 
 ## Installation
 
-Clone and install:
+Run in your terminal:
 
 ```bash
 pip install git+https://github.com/THE-RAF/ode-rl-environments.git
@@ -56,7 +58,7 @@ pip install git+https://github.com/THE-RAF/ode-rl-environments.git
 
 ## Creating Custom ODE Models
 
-To create your own ODE system, implement a class with `step(X, t)` method:
+Your model needs three components: parameters dictionary, initial_conditions array, and step(X, t) method that returns derivatives. The framework handles the rest automatically.
 
 ```python
 import numpy as np
@@ -116,6 +118,8 @@ Main environment class for wrapping ODE models:
 
 ### Built-in Models
 
+Three ready-to-use ODE systems are included for immediate experimentation:
+
 **SimpleODE**: Coupled system with dx/dt = y, dy/dt = x
 ```python
 model = ode_models.SimpleODE(parameters={'x': 1.0, 'y': 0.5})
@@ -140,7 +144,7 @@ model = ode_models.ControlledTank(parameters={
 
 ## Standard RL Loop
 
-The environment follows OpenAI Gym interface:
+Use the standard gym interface for training RL agents. The environment handles ODE integration automatically while your agent focuses on control decisions.
 
 ```python
 # Episode setup
@@ -162,11 +166,11 @@ for step in range(max_steps):
 history = env.model_parameter_history
 ```
 
-**Note**: This library provides the RL environment only. The RL agent implementation is outside the scope of this module and left to the user.
+**Note**: This library provides the RL environment only. The RL agent implementation is outside the scope of this module.
 
 ## Examples
 
-Run the included examples:
+Three complete examples show different use cases and demonstrate the framework's flexibility:
 
 ```bash
 python -m ode_rl_environments.examples.minimal_ode_example
